@@ -80,32 +80,35 @@
   <button class="small-button" onclick="goToFinal()">入力</button>
 
   <script>
-    function initTimer() {
-      if (localStorage.getItem("bombCleared") === "true") return;
+  function startCountdown() {
+  const saved = Number(localStorage.getItem("endTime"));
+  const now = Date.now();
 
-      if (!localStorage.getItem("endTime")) {
-        const end = Date.now() + 20 * 60 * 1000;
-        localStorage.setItem("endTime", end);
-      }
-      updateTimer();
-      setInterval(updateTimer, 1000);
-    }
+  // 過去の endTime が残っていたらリセット
+  if (!saved || saved < now) {
+    const end = now + 20 * 60 * 1000;
+    localStorage.setItem("endTime", end);
+  }
 
-    function updateTimer() {
-      if (localStorage.getItem("bombCleared") === "true") return;
+  updateTimer();
+  setInterval(updateTimer, 1000);
+}
 
-      const endTime = Number(localStorage.getItem("endTime"));
-      const now = Date.now();
-      const remaining = Math.floor((endTime - now) / 1000);
+function updateTimer() {
+  const endTime = Number(localStorage.getItem("endTime"));
+  const now = Date.now();
+  const remaining = Math.floor((endTime - now) / 1000);
 
-      if (remaining <= 0) {
-        window.location.href = "gameover1.html";
-        return;
-      }
-      const m = String(Math.floor(remaining / 60)).padStart(2, "0");
-      const s = String(remaining % 60).padStart(2, "0");
-      document.getElementById("timer").textContent = m + ":" + s;
-    }
+  if (remaining <= 0) {
+    window.location.href = "gameover1.html";
+    return;
+  }
+
+  const m = String(Math.floor(remaining / 60)).padStart(2, "0");
+  const s = String(remaining % 60).padStart(2, "0");
+  document.getElementById("timer").textContent = `${m}:${s}`;
+}
+
 
     initTimer();
 
