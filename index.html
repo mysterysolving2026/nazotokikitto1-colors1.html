@@ -2,25 +2,27 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>色コード入力</title>
+  <title>爆弾解除ゲーム - 小謎</title>
   <style>
     body {
-      font-family:"MS Gothic", "Hiragino Sans", sans-serif;
-      text-align: center;
-      margin-top: 60px;
-      background-color: black;
-      color: white;
+      body {
+      font-family: "MS Gothic", "Hiragino Sans", sans-serif;
+      margin-top: 40px;
+       text-align: center;
     }
     .timer {
       font-size: 36px;
       margin-bottom: 20px;
+      text-align: center;
     }
+
     .question {
-      font-size: 22px;
-      margin-bottom: 10px;
+      margin-top: 20px;
+      font-size: 20px;
+      text-align: center;
     }
     .input-box {
-      width: 260px;
+      width: 200px;
       font-size: 18px;
       padding: 4px;
       text-align: center;
@@ -30,68 +32,83 @@
       font-size: 18px;
       padding: 6px 12px;
       margin-top: 8px;
-      background-color: white;
       color: black;
-    }
-    .small-button {
-      position: fixed;
-      right: 10px;
-      bottom: 10px;
-      font-size: 12px;
-      padding: 4px 8px;
-      background-color: black;
-      color: #4B0082;
       border: 2px solid black;
-    }
-    .message {
-      font-size: 20px;
-      margin-top: 15px;
-      color: yellow;
     }
     .error {
       color: red;
+      font-size: 18px;
       margin-top: 5px;
+    }
+    #nextButton {
+      margin-top: 30px;
+      display: none;
     }
   </style>
 </head>
 <body>
 
+  <h1>爆発まで残り...</h1>
+  
+
+  <!-- カウントダウン -->
   <div id="timer" class="timer"></div>
 
-  <h1>切りたい色コードを入力してね</h1>
+  <!-- 小謎3問 -->
+  <h1>最初の問題だよ！ 頑張ってね</h1>
+  <div id="puzzles">
+    <div class="question">
+      1問目：プロフィールに隠された数字は？
+      <br>
+      <input id="q1" class="input-box">
+      <br>
+      <button onclick="checkQ1()">決定</button>
+      <div id="e1" class="error"></div>
+    </div>
 
-  <!-- 手入力欄 -->
-  <input type="text" id="colorInput" class="input-box" placeholder="色を入力">
-  <br>
-  <button class="check-button" onclick="checkColor()">決定</button>
+    <div class="question">
+      2問目：ジャケットに隠されたものは？
+      <br>
+      <input id="q2" class="input-box">
+      <br>
+      <button onclick="checkQ2()">決定</button>
+      <div id="e2" class="error"></div>
+    </div>
 
-  <!-- 色が浮かび上がる場所 -->
-  <div id="colorList" class="color-display"></div>
+    <div class="question">
+      3問目：サインに隠されたものは？
+      <br>
+      <input id="q3" class="input-box">
+      <br>
+      <button onclick="checkQ3()">決定</button>
+      <div id="e3" class="error"></div>
+    </div>
 
-  <!-- 解除するボタン（最初は非表示） -->
-  <button id="fakeClearButton" class="back-button" style="display:none;" onclick="fakeClear()">解除する</button>
-
-  <!-- ミスリード文章 -->
-  <div id="fakeMessage" class="message"></div>
-
-  <!-- 右下の小さな「入力」ボタン（本物のルート） -->
-  <button class="small-button" onclick="goToFinal()">入力</button>
+    <button id="nextButton" onclick="goToColors()">次のページへ</button>
+  </div>
 
   <script>
-    function initTimer() {
-      if (localStorage.getItem("bombCleared") === "true") return;
+    // ページを開いた瞬間にカウントダウン開始
+    window.onload = () => {
+      startCountdown();
+    };
 
-      if (!localStorage.getItem("endTime")) {
-        const end = Date.now() + 20 * 60 * 1000;
-        localStorage.setItem("endTime", end);
-      }
-      updateTimer();
-      setInterval(updateTimer, 1000);
-    }
+    function startCountdown() {
+  const saved = Number(localStorage.getItem("endTime"));
+  const now = Date.now();
+
+  // ★ 過去の endTime が残っていたらリセット
+  if (!saved || saved < now) {
+    const end = now + 20 * 60 * 1000;
+    localStorage.setItem("endTime", end);
+  }
+
+  updateTimer();
+  setInterval(updateTimer, 1000);
+}
+
 
     function updateTimer() {
-      if (localStorage.getItem("bombCleared") === "true") return;
-
       const endTime = Number(localStorage.getItem("endTime"));
       const now = Date.now();
       const remaining = Math.floor((endTime - now) / 1000);
@@ -100,70 +117,58 @@
         window.location.href = "gameover1.html";
         return;
       }
+
       const m = String(Math.floor(remaining / 60)).padStart(2, "0");
       const s = String(remaining % 60).padStart(2, "0");
-      document.getElementById("timer").textContent = m + ":" + s;
+      document.getElementById("timer").textContent = `${m}:${s}`;
     }
 
-    initTimer();
+    let q1ok = false, q2ok = false, q3ok = false;
 
-    function normalizeColors(str) {
-      return str.split(/、|,|\s+/).filter(x => x).map(x => x.trim());
-    }
-
-    // 正解色の判定用辞書
-    const colorMap = {
-      "赤": ["あか", "あかいろ", "赤", "赤色"],
-      "青": ["あお", "あおいろ", "青", "青色"],
-      "黒": ["くろ", "くろいろ", "黒", "黒色"],
-      "黄": ["き", "きいろ", "黄", "黄色"]
-    };
-
-    // すでに表示された色を記録
-    const foundColors = [];
-
-    function checkColor() {
-      const input = document.getElementById("colorInput").value.trim();
-      let matchedColor = null;
-
-      // 入力がどの色に該当するか判定
-      for (const key in colorMap) {
-        if (colorMap[key].includes(input)) {
-          matchedColor = key;
-          break;
-        }
+    function checkAll() {
+      if (q1ok && q2ok && q3ok) {
+        document.getElementById("nextButton").style.display = "inline-block";
       }
+    }
 
-      // 正解色だった場合
-      if (matchedColor) {
-        if (!foundColors.includes(matchedColor)) {
-          foundColors.push(matchedColor);
-          updateDisplay();
-        }
+    function checkQ1() {
+      const v = document.getElementById("q1").value.trim();
+      if (v === "3635") {
+        q1ok = true;
+        document.getElementById("e1").textContent = "正解だよ";
       } else {
-        alert("その色は切らないよ");
+        q1ok = false;
+        document.getElementById("e1").textContent = "間違ってるね";
       }
+      checkAll();
+    }
 
-      // ★ 全色揃ったら「解除する」ボタン表示
-      if (foundColors.length === 4) {
-        document.getElementById("fakeClearButton").style.display = "inline-block";
+    function checkQ2() {
+      const v = document.getElementById("q2").value.trim();
+      if (v === "せいかい") {
+        q2ok = true;
+        document.getElementById("e2").textContent = "正解だよ";
+      } else {
+        q2ok = false;
+        document.getElementById("e2").textContent = "間違ってるね";
       }
+      checkAll();
     }
 
-    // 色を画面に浮かび上がらせる
-    function updateDisplay() {
-      const list = document.getElementById("colorList");
-      list.innerHTML = foundColors.join("・");
+    function checkQ3() {
+      const v = document.getElementById("q3").value.trim();
+      if (v === "せいかい") {
+        q3ok = true;
+        document.getElementById("e3").textContent = "正解だよ";
+      } else {
+        q3ok = false;
+        document.getElementById("e3").textContent = "間違ってるね";
+      }
+      checkAll();
     }
 
-    // ★ 「解除する」ボタンを押したときの動作
-    function fakeClear() {
-      document.getElementById("fakeMessage").textContent =
-        "あれ、解除できない？他の解除方法を見つけてね";
-    }
-
-    function goToFinal() {
-      window.location.href = "final1.html";
+    function goToColors() {
+      window.location.href = "colors1.html";
     }
   </script>
 
