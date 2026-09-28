@@ -11,44 +11,51 @@
       background-color: black;
       color: white;
     }
+
     .timer {
-      font-size: 36px;
+      font-size: 7vw;
       margin-bottom: 20px;
     }
+
     .question {
       font-size: 7vw;
       margin-bottom: 20px;
     }
+
     .input-box {
       width: 60vw;
-      font-size: 5vx;
+      font-size: 5vw;   /* ← 修正 */
       padding: 4px;
       text-align: center;
     }
+
     button {
       font-family: "MS Gothic", "Hiragino Sans", sans-serif;
       font-size: 5vw;
-      padding: 2vw 4vx;
+      padding: 2vw 4vw; /* ← 修正 */
       margin-top: 8px;
       background-color: white;
       color: black;
-      border: 2px solid black;
+      border: 2px solid black; /* ← 修正 */
     }
+
     .small-button {
       position: fixed;
       right: 10px;
       bottom: 10px;
       font-size: 5vw;
-      padding: 4px 8px;
+      padding: 2vw 4vw;
       background-color: black;
       color: #4B0082;
-      border: 2px black;
+      border: 2px solid black; /* ← 修正 */
     }
+
     .message {
       font-size: 5vw;
       margin-top: 15px;
       color: red;
     }
+
     .error {
       font-size: 5vw;
       color: red;
@@ -62,21 +69,16 @@
 
   <h1>切りたい色コードを入力してね</h1>
 
-  <!-- 手入力欄 -->
   <input type="text" id="colorInput" class="input-box" placeholder="色を入力">
   <br>
-  <button class="check-button" onclick="checkColor()">決定</button>
+  <button onclick="checkColor()">決定</button>
 
-  <!-- 色が浮かび上がる場所 -->
-  <div id="colorList" class="color-display"></div>
+  <div id="colorList"></div>
 
-  <!-- 解除するボタン（最初は非表示） -->
-  <button id="fakeClearButton" class="back-button" style="display:none;" onclick="fakeClear()">解除する</button>
+  <button id="fakeClearButton" style="display:none;" onclick="fakeClear()">解除する</button>
 
-  <!-- ミスリード文章 -->
   <div id="fakeMessage" class="message"></div>
 
-  <!-- 右下の小さな「入力」ボタン（本物のルート） -->
   <button class="small-button" onclick="goToFinal()">入力</button>
   
   <script>
@@ -109,11 +111,6 @@
 
     initTimer();
 
-    function normalizeColors(str) {
-      return str.split(/、|,|\s+/).filter(x => x).map(x => x.trim());
-    }
-
-    // 正解色の判定用辞書
     const colorMap = {
       "赤": ["あか", "あかいろ", "赤", "赤色"],
       "青": ["あお", "あおいろ", "青", "青色"],
@@ -121,14 +118,12 @@
       "黄": ["き", "きいろ", "黄", "黄色"]
     };
 
-    // すでに表示された色を記録
     const foundColors = [];
 
     function checkColor() {
       const input = document.getElementById("colorInput").value.trim();
       let matchedColor = null;
 
-      // 入力がどの色に該当するか判定
       for (const key in colorMap) {
         if (colorMap[key].includes(input)) {
           matchedColor = key;
@@ -136,7 +131,6 @@
         }
       }
 
-      // 正解色だった場合
       if (matchedColor) {
         if (!foundColors.includes(matchedColor)) {
           foundColors.push(matchedColor);
@@ -146,19 +140,16 @@
         alert("その色は切らないよ");
       }
 
-      // ★ 全色揃ったら「解除する」ボタン表示
       if (foundColors.length === 4) {
         document.getElementById("fakeClearButton").style.display = "inline-block";
       }
     }
 
-    // 色を画面に浮かび上がらせる
     function updateDisplay() {
       const list = document.getElementById("colorList");
       list.innerHTML = foundColors.join("・");
     }
 
-    // ★ 「解除する」ボタンを押したときの動作
     function fakeClear() {
       document.getElementById("fakeMessage").textContent =
         "あれ、解除できない？他の解除方法を見つけてね";
