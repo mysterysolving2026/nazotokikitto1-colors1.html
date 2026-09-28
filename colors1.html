@@ -24,7 +24,7 @@
 
     .input-box {
       width: 60vw;
-      font-size: 5vw;
+      font-size: 5vw;   /* ← 修正 */
       padding: 4px;
       text-align: center;
     }
@@ -32,22 +32,22 @@
     button {
       font-family: "MS Gothic", "Hiragino Sans", sans-serif;
       font-size: 5vw;
-      padding: 2vw 4vw;
+      padding: 2vw 4vw; /* ← 修正 */
       margin-top: 8px;
       background-color: white;
       color: black;
-      border: 2px solid black;
+      border: 2px solid black; /* ← 修正 */
     }
 
     .small-button {
       position: fixed;
       right: 10px;
       bottom: 10px;
-      font-size: 3vw;
-      padding: 2vw 4vw;
+      font-size: 1vw;
+      padding: 1vw 2vw;
       background-color: black;
       color: #4B0082;
-      border: 2px solid black;
+      border: 2px black; /* ← 修正 */
     }
 
     .message {
@@ -61,11 +61,10 @@
       color: red;
       margin-top: 5px;
     }
+    
   </style>
 </head>
-
-<!-- ★★★ ここが最重要修正ポイント ★★★ -->
-<body onload="initTimer()">
+<body>
 
   <div id="timer" class="timer"></div>
 
@@ -110,6 +109,8 @@
       const s = String(remaining % 60).padStart(2, "0");
       document.getElementById("timer").textContent = m + ":" + s;
     }
+
+    initTimer();
 
     const colorMap = {
       "赤": ["あか", "あかいろ", "赤", "赤色"],
