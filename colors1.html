@@ -87,7 +87,26 @@
         const end = Date.now() + 20 * 60 * 1000;
         localStorage.setItem("endTime", end);
       }
-      
+      updateTimer();
+      setInterval(updateTimer, 1000);
+    }
+
+    function updateTimer() {
+      if (localStorage.getItem("bombCleared") === "true") return;
+
+      const endTime = Number(localStorage.getItem("endTime"));
+      const now = Date.now();
+      const remaining = Math.floor((endTime - now) / 1000);
+
+      if (remaining <= 0) {
+        window.location.href = "gameover1.html";
+        return;
+      }
+      const m = String(Math.floor(remaining / 60)).padStart(2, "0");
+      const s = String(remaining % 60).padStart(2, "0");
+      document.getElementById("timer").textContent = m + ":" + s;
+    }
+
     initTimer();
 
     function normalizeColors(str) {
