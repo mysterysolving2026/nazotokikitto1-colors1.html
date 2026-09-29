@@ -69,7 +69,7 @@
   <h1>最初の問題だよ！ 頑張ってね</h1>
   <div id="puzzles">
     <div class="question">
-      1問目：プロフィールに隠された数字は？
+      1問目：杏ちゃんのMBTIは？
       <br>
       <input id="q1" class="input-box">
       <br>
@@ -78,7 +78,7 @@
     </div>
 
     <div class="question">
-      2問目：ジャケットに隠されたものは？
+      2問目：星を重ねて月を見るとき、秒針、長針、短針が示す数字は？
       <br>
       <input id="q2" class="input-box">
       <br>
@@ -156,7 +156,7 @@
 
     function checkQ2() {
       const v = document.getElementById("q2").value.trim();
-      if (v === "せいかい") {
+      if (v === "4701") {
         q2ok = true;
         document.getElementById("e2").textContent = "正解だよ";
       } else {
